@@ -28,7 +28,7 @@
   "eslintConfig": {
     "extends": "react-app"
   },
-  "homepage": "https://hr-han.github.io/nomflix",
+  "homepage": "https://hr-han.github.io",
   "browserslist": {
     "production": [
       ">0.2%",
