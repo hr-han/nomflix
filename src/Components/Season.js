@@ -1,6 +1,7 @@
 import React from "react";
 import styled from "styled-components";
 import Poster from "Components/Poster";
+import Loader from "Components/Loader";
 import { TVApi } from "../api";
 
 const Collections = styled.div`
@@ -75,7 +76,7 @@ export default class extends React.Component {
             }
         } = props;
         this.state = {
-            seasons, id
+            seasons, id, loading:true
         };
     }
 
@@ -92,12 +93,13 @@ export default class extends React.Component {
             await seasons.map(async (__, idx) => {
                 const { data } = await TVApi.season(id, idx);
                 result.push(data)
+                if (idx === seasons.length-1) {
+                    this.setState({ result, loading: false });
+                }
             });
             
         } catch (error) {
             this.setState({ error: "Can't find anything." })
-        } finally {
-            this.setState({ result })
         }
 
 
@@ -105,20 +107,22 @@ export default class extends React.Component {
     render() {
 
 
-        const { result } = this.state;
+        const { result, loading } = this.state;
+        console.log(result, loading);
+        
 
         return (
             <Collections>
-                {result && result.length > 0 && result.map(season => (
+            {loading? <Loader/>:
+                result && result.length > 0 && result.map(season => (
                     <Collection key={season.id}>
                         <Name>{season.name}</Name>
-
                         <ImageContainer>
                             {season.poster_path ? <Image src={`https://image.tmdb.org/t/p/w300${season.poster_path}`} /> :
                                 (<NoImage>No Image</NoImage>)}
                             <PosterContainer>
                                 {season.episodes && season.episodes.length > 0 && season.episodes.map(episode => (
-                                    <Parts>
+                                    <Parts key={episode.id}>
                                         <Poster
                                             key={episode.id}
                                             id={episode.id}
@@ -133,7 +137,9 @@ export default class extends React.Component {
                             </PosterContainer>
                         </ImageContainer>
                     </Collection>
-                ))}
+                ))
+            }
+            
             </Collections>
         );
     }
